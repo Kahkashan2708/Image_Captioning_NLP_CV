@@ -2,29 +2,40 @@ import streamlit as st
 import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
-import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import img_to_array
 import pickle
+from PIL import Image
 
+# ---------- Page Config ----------
+st.set_page_config(
+    page_title="Image Caption Generator",
+    page_icon="📷",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# Function to generate and display caption
-def generate_and_display_caption(image_path, model_path, tokenizer_path, feature_extractor_path, max_length=34,img_size=224):
-    # Load the trained models and tokenizer
+# ---------- Load Models & Tokenizer (cached for efficiency) ----------
+@st.cache_resource
+def load_resources(model_path, feature_extractor_path, tokenizer_path):
     caption_model = load_model(model_path)
     feature_extractor = load_model(feature_extractor_path)
-
     with open(tokenizer_path, "rb") as f:
         tokenizer = pickle.load(f)
+    return caption_model, feature_extractor, tokenizer
 
-    # Preprocess the image
-    img = load_img(image_path, target_size=(img_size, img_size))
-    img = img_to_array(img) / 255.0  # Normalize pixel values
-    img = np.expand_dims(img, axis=0)
-    image_features = feature_extractor.predict(img, verbose=0)  # Extract image features
+# ---------- Generate Caption ----------
+def generate_caption(image, caption_model, feature_extractor, tokenizer, max_length=34, img_size=224):
+    # Preprocess image
+    img = image.resize((img_size, img_size))
+    img_array = img_to_array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
 
-    # Generate the caption
+    # Extract image features
+    image_features = feature_extractor.predict(img_array, verbose=0)
+
+    # Generate caption
     in_text = "startseq"
-    for i in range(max_length):
+    for _ in range(max_length):
         sequence = tokenizer.texts_to_sequences([in_text])[0]
         sequence = pad_sequences([sequence], maxlen=max_length)
         yhat = caption_model.predict([image_features, sequence], verbose=0)
@@ -35,38 +46,76 @@ def generate_and_display_caption(image_path, model_path, tokenizer_path, feature
         in_text += " " + word
         if word == "endseq":
             break
+
     caption = in_text.replace("startseq", "").replace("endseq", "").strip()
+    return caption
 
-    # Display the image with the generated caption
-    img = load_img(image_path, target_size=(img_size, img_size))
-    plt.figure(figsize=(8, 8))
-    plt.imshow(img)
-    plt.axis('off')
-    plt.title(caption, fontsize=16, color='blue')
-    st.pyplot(plt)  # Display image in Streamlit
-
-
-# Streamlit app interface
+# ---------- Streamlit App ----------
 def main():
-    st.title("Image Caption Generator")
-    st.write("Upload an image and generate a caption using the trained model.")
+    # Sidebar
+    st.sidebar.title("⚙️ Settings")
+    st.sidebar.info("Upload an image and generate captions using your trained model.")
+    max_length = st.sidebar.slider("Max Caption Length", 20, 50, 34)
 
-    # Upload the image
-    uploaded_image = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    st.markdown(
+        """
+        <style>
+        .title {
+            font-size:36px !important;
+            font-weight:bold;
+            color:#2E86C1;
+            text-align:center;
+        }
+        .caption-box {
+            padding:20px;
+            background-color:#F2F4F4;
+            border-radius:12px;
+            margin-top:20px;
+            font-size:26px; /* Larger caption text */
+            font-weight:bold;
+            text-align:center;
+            color:#1C2833;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Title
+    st.markdown('<p class="title"> Image Caption Generator</p>', unsafe_allow_html=True)
+    st.write("Upload an image to generate a meaningful caption using trained model.")
+
+    # Upload image
+    uploaded_image = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
     if uploaded_image is not None:
-        # Save the uploaded image temporarily
-        with open("uploaded_image.jpg", "wb") as f:
-            f.write(uploaded_image.getbuffer())
+        # Open image with PIL
+        image = Image.open(uploaded_image).convert("RGB")
 
-        # Paths for the saved models and tokenizer
-        model_path = "models/model.keras"  # Replace with the actual path
-        tokenizer_path = "models/tokenizer.pkl"  # Replace with the actual path
-        feature_extractor_path = "models/feature_extractor.keras"  # Replace with the actual path
+        # Paths for models/tokenizer (adjust to your files)
+        model_path = "model.keras"
+        tokenizer_path = "tokenizer.pkl"
+        feature_extractor_path = "feature_extractor.keras"
 
-        # Generate caption and display image with caption
-        generate_and_display_caption("uploaded_image.jpg", model_path, tokenizer_path, feature_extractor_path)
+        # Load models and tokenizer
+        caption_model, feature_extractor, tokenizer = load_resources(
+            model_path, feature_extractor_path, tokenizer_path
+        )
 
+        with st.spinner("⏳ Generating caption..."):
+            caption = generate_caption(image, caption_model, feature_extractor, tokenizer, max_length=max_length)
+
+        # Layout: Two columns (image smaller, caption larger)
+        col1, col2 = st.columns([1, 2])  # Image takes 2/3, caption 1/3
+
+        with col1:
+            st.image(image, caption="Uploaded Image", use_container_width=True)  
+
+        with col2:
+            st.markdown('<div class="caption-box"> ' + caption + '</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
+
+
+
