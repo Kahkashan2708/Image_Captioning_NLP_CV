@@ -1,6 +1,5 @@
-streamlit
+streamlit==1.31.1
 tensorflow==2.15.0
-numpy
-pillow
-matplotlib
-scikit-learn
+pillow==10.4.0
+numpy==1.26.4
+protobuf<5
