@@ -67,6 +67,7 @@ The project includes a Streamlit UI (deployed on **Hugging Face Spaces**), a ful
 ```bash
 git clone https://github.com/Kahkashan2708/Image_Captioning_NLP_CV.git
 cd Image_Captioning_NLP_CV
+```
 
 ### 2) Create a virtual environment
 
@@ -76,16 +77,19 @@ python -m venv .venv
 .venv\Scripts\activate
 # macOS / Linux
 source .venv/bin/activate
+```
 
 ### 3) Install the dependencies
 
 ```bash
 pip install -r requirements.txt
+```
 
 
 ### 4) Run the app
 ```bash
 streamlit run src/app.py
+```
 ---
 
 ## 📜 License
@@ -100,5 +104,3 @@ MIT License. See `LICENSE`
 GitHub: [https://github.com/Kahkashan2708](https://github.com/Kahkashan2708)
 
 ---
-
-
