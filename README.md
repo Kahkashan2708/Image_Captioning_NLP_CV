@@ -1,4 +1,5 @@
 # Image Captioning using NLP & CV
+---
 
 Generate meaningful captions for images using a hybrid of **Computer Vision** (DenseNet-201 features) and **Natural Language Processing** (Embedding + LSTM decoder).  
 The project includes a Streamlit UI (deployed on **Hugging Face Spaces**), a full training notebook, and saved artifacts for inference.
@@ -44,16 +45,16 @@ The project includes a Streamlit UI (deployed on **Hugging Face Spaces**), a ful
 
 ## Repository Structure
 ```
-├── src/ # Streamlit app (UI) and helpers
-│ └── (app file for Streamlit lives here)
-├── Image-Captioning.ipynb # Full training & evaluation notebook
-├── feature_extractor.keras # Saved DenseNet-201 feature extractor
-├── model.keras # Trained caption generator
-├── tokenizer.pkl # Fitted tokenizer for captions
-├── requirements.txt # Python dependencies
-├── Dockerfile # Optional: container build for the app
-├── Hugging-face-deployment.png # Screenshot 1 (Space)
-├── Hugging-face-ss.png # Screenshot 2 (Space)
+├── src/                            # Source file containing app.py file
+│ └── app.py
+├── Image-Captioning.ipynb          # Full training & evaluation notebook
+├── feature_extractor.keras         # Saved DenseNet-201 feature extractor
+├── model.keras                     # Trained caption generator
+├── tokenizer.pkl                   # Fitted tokenizer for captions
+├── requirements.txt                # Python dependencies
+├── Dockerfile                      # container build for the app
+├── Hugging-face-deployment.png     # Screenshot 1 (Space)
+├── Hugging-face-ss.png             # Screenshot 2 (Space)
 └── README.md
 ```
 
@@ -73,11 +74,7 @@ cd Image_Captioning_NLP_CV
 
 ```bash
 python -m venv .venv
-# Windows
 .venv\Scripts\activate
-# macOS / Linux
-source .venv/bin/activate
-```
 
 ### 3) Install the dependencies
 
@@ -92,13 +89,13 @@ streamlit run src/app.py
 ```
 ---
 
-## 📜 License
+## License
 
 MIT License. See `LICENSE` 
 
 ---
 
-## 👩‍💻 Author
+## Author
 
 **Kahkashan Manzoor**  
 GitHub: [https://github.com/Kahkashan2708](https://github.com/Kahkashan2708)
