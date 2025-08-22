@@ -7,7 +7,6 @@ import pickle
 from PIL import Image
 import base64
 import os
-import tensorflow as tf
 
 # ---------- Paths to models & tokenizer ----------
 # Assumes model files are one level up from /src/
