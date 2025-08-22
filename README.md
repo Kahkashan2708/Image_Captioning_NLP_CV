@@ -75,6 +75,7 @@ cd Image_Captioning_NLP_CV
 ```bash
 python -m venv .venv
 .venv\Scripts\activate
+```
 
 ### 3) Install the dependencies
 
